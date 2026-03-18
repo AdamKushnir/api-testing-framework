@@ -1,0 +1,230 @@
+{
+  "info": {
+    "_postman_id": "ccd1c782-a880-480e-a8fc-2dbc84b4e9c0",
+    "name": "Bakalarska Colletions",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52433980",
+    "_collection_link": "https://go.postman.co/collection/52433980-ccd1c782-a880-480e-a8fc-2dbc84b4e9c0?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://rickandmortyapi.com/api/character/236",
+          "protocol": "https",
+          "host": [
+            "rickandmortyapi",
+            "com"
+          ],
+          "path": [
+            "api",
+            "character",
+            "236"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "New Request",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rickandmortyapi.com/api/character/236",
+              "protocol": "https",
+              "host": [
+                "rickandmortyapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "character",
+                "236"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": ":status",
+              "value": 200
+            },
+            {
+              "key": "date",
+              "value": "Wed, 18 Mar 2026 15:39:01 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "server",
+              "value": "cloudflare"
+            },
+            {
+              "key": "nel",
+              "value": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+            },
+            {
+              "key": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "etag",
+              "value": "W/\"1cb-5E86+kweWMPJzz5iMHDoZZJLQs0\""
+            },
+            {
+              "key": "x-proxy-cache",
+              "value": "MISS"
+            },
+            {
+              "key": "cache-control",
+              "value": "public, max-age=7776000, immutable"
+            },
+            {
+              "key": "report-to",
+              "value": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qOxAl5GgflIuq5lLk2f%2BwLIgQhPyCHhNXrLFfgP27jmXHTg43tDJ1auoRJ3%2BbRCEXDC9Vaci3%2BRXan0kEltlaRqiA6pFq5aWb0YhyLmKBXBRprApkKgYWs%2BYzP26YpU%3D\"}]}"
+            },
+            {
+              "key": "age",
+              "value": "1092199"
+            },
+            {
+              "key": "cf-cache-status",
+              "value": "HIT"
+            },
+            {
+              "key": "content-encoding",
+              "value": "br"
+            },
+            {
+              "key": "cf-ray",
+              "value": "9de553e32c20579f-PRG"
+            },
+            {
+              "key": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"id\": 236,\n    \"name\": \"Mr. Beauregard\",\n    \"status\": \"Dead\",\n    \"species\": \"Alien\",\n    \"type\": \"Parasite\",\n    \"gender\": \"Male\",\n    \"origin\": {\n        \"name\": \"unknown\",\n        \"url\": \"\"\n    },\n    \"location\": {\n        \"name\": \"Earth (Replacement Dimension)\",\n        \"url\": \"https://rickandmortyapi.com/api/location/20\"\n    },\n    \"image\": \"https://rickandmortyapi.com/api/character/avatar/236.jpeg\",\n    \"episode\": [\n        \"https://rickandmortyapi.com/api/episode/15\"\n    ],\n    \"url\": \"https://rickandmortyapi.com/api/character/236\",\n    \"created\": \"2017-12-30T17:28:28.409Z\"\n}"
+        },
+        {
+          "name": "New Request",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rickandmortyapi.com/api/character/236",
+              "protocol": "https",
+              "host": [
+                "rickandmortyapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "character",
+                "236"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": ":status",
+              "value": 200
+            },
+            {
+              "key": "date",
+              "value": "Wed, 18 Mar 2026 15:39:01 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "server",
+              "value": "cloudflare"
+            },
+            {
+              "key": "nel",
+              "value": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+            },
+            {
+              "key": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "etag",
+              "value": "W/\"1cb-5E86+kweWMPJzz5iMHDoZZJLQs0\""
+            },
+            {
+              "key": "x-proxy-cache",
+              "value": "MISS"
+            },
+            {
+              "key": "cache-control",
+              "value": "public, max-age=7776000, immutable"
+            },
+            {
+              "key": "report-to",
+              "value": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qOxAl5GgflIuq5lLk2f%2BwLIgQhPyCHhNXrLFfgP27jmXHTg43tDJ1auoRJ3%2BbRCEXDC9Vaci3%2BRXan0kEltlaRqiA6pFq5aWb0YhyLmKBXBRprApkKgYWs%2BYzP26YpU%3D\"}]}"
+            },
+            {
+              "key": "age",
+              "value": "1092199"
+            },
+            {
+              "key": "cf-cache-status",
+              "value": "HIT"
+            },
+            {
+              "key": "content-encoding",
+              "value": "br"
+            },
+            {
+              "key": "cf-ray",
+              "value": "9de553e32c20579f-PRG"
+            },
+            {
+              "key": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"id\": 236,\n    \"name\": \"Mr. Beauregard\",\n    \"status\": \"Dead\",\n    \"species\": \"Alien\",\n    \"type\": \"Parasite\",\n    \"gender\": \"Male\",\n    \"origin\": {\n        \"name\": \"unknown\",\n        \"url\": \"\"\n    },\n    \"location\": {\n        \"name\": \"Earth (Replacement Dimension)\",\n        \"url\": \"https://rickandmortyapi.com/api/location/20\"\n    },\n    \"image\": \"https://rickandmortyapi.com/api/character/avatar/236.jpeg\",\n    \"episode\": [\n        \"https://rickandmortyapi.com/api/episode/15\"\n    ],\n    \"url\": \"https://rickandmortyapi.com/api/character/236\",\n    \"created\": \"2017-12-30T17:28:28.409Z\"\n}"
+        }
+      ]
+    }
+  ]
+}
