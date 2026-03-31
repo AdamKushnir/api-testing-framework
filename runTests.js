@@ -1,11 +1,19 @@
 // runTests.js
-const newman = require('newman');
-const fs = require('fs');
-const path = require('path');
 
-const collection = require('./project/collections/API_collection.json');
+const newman = require('newman');
+const fs     = require('fs');
+const path   = require('path');
+
+const collection  = require('./project/collections/API_collection.json');
 const environment = require('./project/environments/dev.env.json');
-const data = require('./project/data/testData.json');
+const data        = require('./project/data/testData.json');
+
+// Ensure reports directory exists — created automatically on first run
+// so cloned repositories work without manual setup.
+const reportsDir = path.resolve(__dirname, 'project/reports');
+if (!fs.existsSync(reportsDir)) {
+  fs.mkdirSync(reportsDir, { recursive: true });
+}
 
 function setCollectionVariable(key, value) {
   if (!Array.isArray(collection.variable)) collection.variable = [];
@@ -49,6 +57,7 @@ newman.run({
   collection,
   environment,
   iterationData: data,
+  delayRequest: 1000,
 
   reporters: ['cli', 'htmlextra'],
 
