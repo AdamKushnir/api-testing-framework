@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "newman run project/collections/rick_morty_collection.json"
-},
+    "test": "node runTests.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "newman": "^6.2.2",
+    "newman-reporter-htmlextra": "^1.23.1"
   }
 }

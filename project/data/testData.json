@@ -1,0 +1,11 @@
+[
+  { "characterId": 1,  "characterExpectedStatus": 200, "characterFilter": "Rick",         "filterExpectedStatus": 200, "nameCountry": "Czechia",     "countryExpectedStatus": 200 },
+  { "characterId": 2,  "characterExpectedStatus": 200, "characterFilter": "Morty",        "filterExpectedStatus": 200, "nameCountry": "Poland",      "countryExpectedStatus": 200 },
+  { "characterId": 3,  "characterExpectedStatus": 200, "characterFilter": "Summer",       "filterExpectedStatus": 200, "nameCountry": "Germany",     "countryExpectedStatus": 200 },
+  { "characterId": 4,  "characterExpectedStatus": 200, "characterFilter": "Beth",         "filterExpectedStatus": 200, "nameCountry": "France",      "countryExpectedStatus": 200 },
+  { "characterId": 5,  "characterExpectedStatus": 200, "characterFilter": "Jerry",        "filterExpectedStatus": 200, "nameCountry": "Italy",       "countryExpectedStatus": 200 },
+  { "characterId": 6,  "characterExpectedStatus": 200, "characterFilter": "Birdperson",   "filterExpectedStatus": 200, "nameCountry": "Spain",       "countryExpectedStatus": 200 },
+  { "characterId": 7,  "characterExpectedStatus": 200, "characterFilter": "Squanchy",     "filterExpectedStatus": 200, "nameCountry": "Portugal",    "countryExpectedStatus": 200 },
+  { "characterId": 8,  "characterExpectedStatus": 200, "characterFilter": "Meeseeks",     "filterExpectedStatus": 200, "nameCountry": "Netherlands", "countryExpectedStatus": 200 },
+  { "characterId": 999999, "characterExpectedStatus": 404, "characterFilter": "Neverland","filterExpectedStatus": 404, "nameCountry": "Neverland",   "countryExpectedStatus": 404 }
+]

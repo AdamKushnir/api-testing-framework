@@ -1,0 +1,10 @@
+{
+    "type": "object",
+    "properties": {
+      "id": { "type": "number" },
+      "name": { "type": "string" },
+      "status": { "type": "string" },
+      "species": { "type": "string" }
+    },
+    "required": ["id", "name"]
+  }

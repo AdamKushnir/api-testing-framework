@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "object",
+      "properties": {
+        "common": { "type": "string" }
+      },
+      "required": ["common"]
+    },
+    "flags": {
+      "type": "object",
+      "properties": {
+        "png": { "type": "string" },
+        "svg": { "type": "string" }
+      },
+      "required": ["png", "svg"]
+    }
+  },
+  "required": ["name", "flags"]
+}
