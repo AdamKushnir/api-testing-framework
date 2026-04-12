@@ -1,0 +1,978 @@
+{
+  "info": {
+    "_postman_id": "28500f3f-562a-43c9-815a-f3af53ba0c9c",
+    "name": "API Testing Framework Copy 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52433980",
+    "_collection_link": "https://go.postman.co/collection/52433980-28500f3f-562a-43c9-815a-f3af53ba0c9c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "tests",
+      "item": [
+        {
+          "name": "RickAndMorty API collections",
+          "item": [
+            {
+              "name": "GET All Characters",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{rickAndMortyBaseUrl}}character",
+                  "host": [
+                    "{{rickAndMortyBaseUrl}}character"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Filter Characters",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// =====================================================",
+                      "// 📁 GET Filter Characters",
+                      "// =====================================================",
+                      "//",
+                      "// Minimal override — inherits all validation rules from the RickAndMorty",
+                      "// folder defaults. Only request-specific values are set here.",
+                      "",
+                      "// Read filter name from iteration data (testData.json).",
+                      "// Falls back to \"Morty\" for manual single-request runs outside a collection run.",
+                      "// pm.iterationData.get() is required — pm.variables.get() cannot read data file values.",
+                      "pm.variables.set(\"characterFilter\", pm.iterationData.get(\"characterFilter\") || \"Morty\");",
+                      "",
+                      "// Override folder default \"200\" — some iterations intentionally expect 404",
+                      "// (e.g. searching for a character name that does not exist in the API).",
+                      "pm.variables.set(\"expectedStatus\", pm.iterationData.get(\"filterExpectedStatus\") || \"200\");",
+                      "",
+                      "// For 404 responses the API returns { \"error\": \"...\" } instead of { info, results }.",
+                      "// Override folder defaults to match the error response shape.",
+                      "if (Number(pm.iterationData.get(\"filterExpectedStatus\")) >= 400) {",
+                      "  pm.variables.set(\"expectedRootType\", \"object\");",
+                      "  pm.variables.set(\"requiredKeys\",     JSON.stringify([\"error\"]));",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{rickAndMortyBaseUrl}}character/?name={{characterFilter}}",
+                  "host": [
+                    "{{rickAndMortyBaseUrl}}character"
+                  ],
+                  "path": [
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "{{characterFilter}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Character Invalid ID",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// =====================================================",
+                      "// 📁 GET Character Invalid ID — negative test",
+                      "// =====================================================",
+                      "//",
+                      "// Verifies API contract for non-existent resources.",
+                      "// A well-behaved API must return 404 with a structured error body —",
+                      "// not a 200 with empty data, not a 500, not an unstructured string.",
+                      "",
+                      "// Overrides folder default \"200\" — failure to return 404 is itself a test failure.",
+                      "pm.variables.set(\"expectedStatus\", \"404\");",
+                      "",
+                      "// Error response contract: { \"error\": \"Character not found\" }",
+                      "// Only the presence of the \"error\" key is asserted — value is not constrained.",
+                      "pm.variables.set(\"requiredKeys\", JSON.stringify([\"error\"]));",
+                      "",
+                      "// Character fields (id, name, status...) are absent in error responses —",
+                      "// asserting them here would always fail. Empty arrays skip those checks entirely.",
+                      "pm.variables.set(\"nonEmptyStringFields\", JSON.stringify([]));",
+                      "pm.variables.set(\"positiveNumberFields\", JSON.stringify([]));",
+                      "pm.variables.set(\"urlFields\",            JSON.stringify([]));",
+                      "pm.variables.set(\"dateTimeFields\",       JSON.stringify([]));",
+                      "pm.variables.set(\"enumRules\",            JSON.stringify({}));"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{rickAndMortyBaseUrl}}character/{{errorcharacterId}}",
+                  "host": [
+                    "{{rickAndMortyBaseUrl}}character"
+                  ],
+                  "path": [
+                    "{{errorcharacterId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Character By ID",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// =====================================================",
+                      "// 📁 GET Character By ID — data-driven test",
+                      "// =====================================================",
+                      "//",
+                      "// Validation rules branch on expected status — success and error responses",
+                      "// have fundamentally different shapes and cannot share the same ruleset.",
+                      "//",
+                      "// Test data is driven by testData.json (one row per iteration):",
+                      "//   { \"characterId\": 1,      \"characterExpectedStatus\": 200 }",
+                      "//   { \"characterId\": 999999, \"characterExpectedStatus\": 404 }",
+                      "",
+                      "// Read expected status from iteration data.",
+                      "// Falls back to 200 for manual single-request runs outside a collection run.",
+                      "pm.variables.set(\"expectedStatus\", pm.iterationData.get(\"characterExpectedStatus\") || 200);",
+                      "",
+                      "// Tighter than the parent 1000ms default — consistent with folder-level threshold.",
+                      "pm.variables.set(\"maxResponseTime\", 150);",
+                      "",
+                      "// Single character endpoint always returns one object, never an array.",
+                      "pm.variables.set(\"expectedRootType\", \"object\");",
+                      "",
+                      "// Number() cast is required — pm.variables.get() always returns a string.",
+                      "if (Number(pm.variables.get(\"expectedStatus\")) >= 400) {",
+                      "",
+                      "  // Error path — API returns { \"error\": \"Character not found\" }.",
+                      "  // Character fields are absent, asserting them would always fail.",
+                      "  pm.variables.set(\"requiredKeys\",         JSON.stringify([\"error\"]));",
+                      "  pm.variables.set(\"enumRules\",            \"{}\");",
+                      "  pm.variables.set(\"nonEmptyStringFields\", \"[]\");",
+                      "  pm.variables.set(\"positiveNumberFields\", \"[]\");",
+                      "  pm.variables.set(\"urlFields\",            \"[]\");",
+                      "  pm.variables.set(\"dateTimeFields\",       \"[]\");",
+                      "",
+                      "} else {",
+                      "",
+                      "  // Success path — full character object contract validation.",
+                      "  // All fields below are guaranteed present by the RickAndMorty API contract.",
+                      "  pm.variables.set(\"requiredKeys\", JSON.stringify([",
+                      "    \"id\", \"name\", \"status\", \"species\", \"gender\", \"image\", \"url\", \"created\"",
+                      "  ]));",
+                      "",
+                      "  // status is a closed enum — any value outside this set indicates an API contract break.",
+                      "  pm.variables.set(\"enumRules\", JSON.stringify({",
+                      "    \"status\": [\"Alive\", \"Dead\", \"unknown\"]",
+                      "  }));",
+                      "",
+                      "  // Fields that must be non-empty strings — empty value would indicate incomplete data.",
+                      "  pm.variables.set(\"nonEmptyStringFields\", JSON.stringify([",
+                      "    \"name\", \"species\", \"gender\", \"url\", \"created\"",
+                      "  ]));",
+                      "",
+                      "  // id is always a positive integer — RickAndMorty IDs start at 1.",
+                      "  pm.variables.set(\"positiveNumberFields\", JSON.stringify([\"id\"]));",
+                      "",
+                      "  // image and url must be reachable HTTP/HTTPS addresses.",
+                      "  pm.variables.set(\"urlFields\", JSON.stringify([\"image\", \"url\"]));",
+                      "",
+                      "  // created is an ISO 8601 datetime string — validated via Date.parse().",
+                      "  pm.variables.set(\"dateTimeFields\", JSON.stringify([\"created\"]));",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{rickAndMortyBaseUrl}}character/{{characterId}}",
+                  "host": [
+                    "{{rickAndMortyBaseUrl}}character"
+                  ],
+                  "path": [
+                    "{{characterId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "requests": {},
+                "exec": [
+                  "// =====================================================",
+                  "// 📁 FOLDER DEFAULTS — RickAndMorty API collections",
+                  "// =====================================================",
+                  "//",
+                  "// Overrides top-level defaults for all RickAndMorty endpoints.",
+                  "// GET All Characters and GET Filter Characters inherit everything here.",
+                  "// GET Character By ID and GET Character Invalid ID override per-request.",
+                  "",
+                  "// 200 inherited from parent — explicitly set here for clarity.",
+                  "pm.variables.set(\"expectedStatus\",      \"200\");",
+                  "",
+                  "pm.variables.set(\"expectedContentType\", \"application/json\");",
+                  "",
+                  "// Both single-object and list endpoints share the same character shape —",
+                  "// one schema covers both use cases.",
+                  "pm.variables.set(\"schemaSingleKey\", \"character.schema\");",
+                  "pm.variables.set(\"schemaListKey\",   \"character.schema\");",
+                  "",
+                  "// RickAndMorty list responses return a paginated wrapper { info, results }",
+                  "// rather than a root-level array — overrides parent default \"array\".",
+                  "pm.variables.set(\"expectedRootType\", \"object\");",
+                  "",
+                  "// Default validation rules target list endpoints (GET All, GET Filter).",
+                  "// Both return { info, results } — only the wrapper keys are asserted here.",
+                  "// GET Character By ID overrides these with full character field validation.",
+                  "pm.variables.set(\"requiredKeys\",           JSON.stringify([\"info\", \"results\"]));",
+                  "",
+                  "// Individual character fields are not validated at list level —",
+                  "// field-level assertions run only on single-object responses (GET by ID).",
+                  "pm.variables.set(\"nonEmptyStringFields\",   JSON.stringify([]));",
+                  "pm.variables.set(\"positiveNumberFields\",   JSON.stringify([]));",
+                  "pm.variables.set(\"urlFields\",              JSON.stringify([]));",
+                  "pm.variables.set(\"dateTimeFields\",         JSON.stringify([]));",
+                  "pm.variables.set(\"enumRules\",              JSON.stringify({}));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "REST Countries collections",
+          "item": [
+            {
+              "name": "GET All Countries",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "pm.variables.set(\"maxResponseTime\", \"1000\");"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{RESTcountriesBaseUrl}}{{RESTcountriesAllList}}",
+                  "host": [
+                    "{{RESTcountriesBaseUrl}}{{RESTcountriesAllList}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET REST countries by NAME",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// =====================================================\r",
+                      "// 📁 GET REST countries by NAME — data-driven test\r",
+                      "// =====================================================\r",
+                      "\r",
+                      "// Read country name and expected status from iteration data.\r",
+                      "// Falls back to \"Czechia\" and 200 for manual single-request runs.\r",
+                      "pm.variables.set(\"nameCountry\",    pm.iterationData.get(\"nameCountry\")           || \"Czechia\");\r",
+                      "pm.variables.set(\"expectedStatus\", pm.iterationData.get(\"countryExpectedStatus\") || \"200\");\r",
+                      "\r",
+                      "// For 404 responses the API returns a single object { status, message },\r",
+                      "// not an array — override folder default \"array\" to match error response shape.\r",
+                      "if (Number(pm.iterationData.get(\"countryExpectedStatus\")) >= 400) {\r",
+                      "  pm.variables.set(\"expectedRootType\", \"object\");\r",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{RESTcountriesBaseUrl}}{{RESTcountriesSearchByName}}{{nameCountry}}",
+                  "host": [
+                    "{{RESTcountriesBaseUrl}}{{RESTcountriesSearchByName}}{{nameCountry}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "requests": {},
+                "exec": [
+                  "// =====================================================\r",
+                  "// 📁 FOLDER DEFAULTS — REST Countries collections\r",
+                  "// =====================================================\r",
+                  "//\r",
+                  "// Overrides top-level defaults for all REST Countries endpoints.\r",
+                  "// Most values align with parent defaults — explicitly set here\r",
+                  "// so this folder is self-documenting and not silently dependent\r",
+                  "// on values set elsewhere.\r",
+                  "\r",
+                  "// Inherited from parent — restated explicitly for readability.\r",
+                  "pm.variables.set(\"expectedStatus\",      \"200\");\r",
+                  "pm.variables.set(\"expectedContentType\", \"application/json\");\r",
+                  "\r",
+                  "// REST Countries API is a public third-party service — 1000ms allows\r",
+                  "// for occasional network variance without causing false failures.\r",
+                  "pm.variables.set(\"maxResponseTime\", \"500\");\r",
+                  "\r",
+                  "// REST Countries returns a root-level array of country objects [ {...}, {...} ].\r",
+                  "pm.variables.set(\"expectedRootType\", \"array\");\r",
+                  "\r",
+                  "// Both single-object and list endpoints share the same country shape —\r",
+                  "// one schema covers both use cases.\r",
+                  "pm.variables.set(\"schemaSingleKey\", \"country.schema\");\r",
+                  "pm.variables.set(\"schemaListKey\",   \"country.schema\");\r",
+                  "\r",
+                  "// schemaErrorKey is defined in Collection Variables and inherited automatically —\r",
+                  "// no override needed here."
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "requests": {},
+            "exec": [
+              "// =====================================================",
+              "// 📁 FOLDER DEFAULTS — tests (parent wrapper)",
+              "// =====================================================",
+              "//",
+              "// Top-level defaults inherited by every request in this collection.",
+              "// Subfolder and request pre-request scripts override individual values",
+              "// as needed — only the delta needs to be specified, not the full config.",
+              "//",
+              "// Override priority (lowest → highest):",
+              "//   This script → Subfolder pre-req → Request pre-req",
+              "",
+              "// All GET endpoints in this collection are expected to respond successfully.",
+              "pm.variables.set(\"expectedStatus\",      \"200\");",
+              "",
+              "// 1000ms is a conservative baseline — latency-sensitive subfolders",
+              "// (e.g. RickAndMorty) tighten this to 150ms in their own pre-req.",
+              "pm.variables.set(\"maxResponseTime\",     \"150\");",
+              "",
+              "// All endpoints return JSON — no exceptions in current scope.",
+              "pm.variables.set(\"expectedContentType\", \"application/json\");",
+              "",
+              "// REST Countries returns a root-level array [ {...}, {...} ].",
+              "// RickAndMorty subfolder overrides this to \"object\" (paginated wrapper).",
+              "pm.variables.set(\"expectedRootType\",    \"array\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          "// =====================================================",
+          "// 1. CORE HELPERS",
+          "// =====================================================",
+          "//",
+          "// Clean utility functions independent of the test context.",
+          "// Injected into every request cycle — no global state.",
+          "",
+          "// __CORE_INJECT_START__",
+          "",
+          "/**",
+          " * Asserts HTTP response status code matches expected value.",
+          " *",
+          " * @param {Object} response - pm.response object",
+          " * @param {number} expected - Expected HTTP status code (e.g. 200, 404)",
+          " */",
+          "function checkStatus(response, expected) {",
+          "  pm.expect(response.code).to.eql(expected);",
+          "}",
+          "",
+          "/**",
+          " * Asserts response time is within acceptable threshold.",
+          " * Catches performance regressions before they reach production.",
+          " *",
+          " * @param {Object} response - pm.response object",
+          " * @param {number} max      - Maximum allowed response time in ms",
+          " */",
+          "function checkResponseTime(response, max) {",
+          "  pm.expect(response.responseTime).to.be.below(max);",
+          "}",
+          "",
+          "/**",
+          " * Parses response body as JSON.",
+          " * Centralised so parse failures surface in one place, not scattered across tests.",
+          " *",
+          " * @param {Object} response - pm.response object",
+          " * @returns {Object|Array}",
+          " */",
+          "function parseBody(response) {",
+          "  return response.json();",
+          "}",
+          "",
+          "/**",
+          " * Validates response body against a JSON Schema (Draft 07 via Ajv).",
+          " *",
+          " * @param {Object} schema - Valid JSON Schema object",
+          " */",
+          "function validateSchema(schema) {",
+          "  pm.response.to.have.jsonSchema(schema);",
+          "}",
+          "",
+          "/**",
+          " * Resolves a nested value using dot notation path.",
+          " *",
+          " * Examples:",
+          " *   getByPath({ user: { name: \"Jan\" } }, \"user.name\")   → \"Jan\"",
+          " *   getByPath({ results: [{ id: 5 }] }, \"results.0.id\") → 5",
+          " *   getByPath(obj, \"\")                                   → obj",
+          " *",
+          " * Uses reduce() to traverse arbitrary depth without recursion.",
+          " * The acc != null guard prevents TypeError on undefined intermediate values.",
+          " *",
+          " * @param {Object} obj  - Source object",
+          " * @param {string} path - Dot-separated path string",
+          " * @returns {*}         - Resolved value or undefined if path does not exist",
+          " */",
+          "function getByPath(obj, path) {",
+          "  if (!path) return obj;",
+          "",
+          "  return path.split('.').reduce(",
+          "    (acc, key) => (acc != null ? acc[key] : undefined),",
+          "    obj",
+          "  );",
+          "}",
+          "",
+          "/**",
+          " * Safely reads and parses a JSON-encoded Postman variable.",
+          " * Postman stores all variables as strings — arrays and objects must be",
+          " * serialised on write and deserialised on read.",
+          " * Behaviour:",
+          " *   - Missing or empty variable → returns fallback (silent, expected)",
+          " *   - Invalid JSON              → fails with explicit test message (loud, unexpected)",
+          " ",
+          " * @param {string} key - Variable name",
+          " * @param {*}      fallback - Default value when variable is absent ([] or {})",
+          " * @returns {*}",
+          " */",
+          "function readJsonVariable(key, fallback) {",
+          "  const raw = pm.variables.get(key);",
+          "",
+          "  if (!raw) return fallback;",
+          "",
+          "  try {",
+          "    return JSON.parse(raw);",
+          "  } catch (e) {",
+          "    pm.test(`Invalid JSON config: ${key}`, () => {",
+          "      throw new Error(`Variable ${key} must be valid JSON`);",
+          "    });",
+          "",
+          "    return fallback;",
+          "  }",
+          "}",
+          "",
+          "// __CORE_INJECT_END__",
+          "",
+          "",
+          "// =====================================================",
+          "//  2. CONFIGURATION",
+          "// =====================================================",
+          "//",
+          "// All test configuration is read from Postman variables.",
+          "// Variable resolution follows this priority chain (lowest → highest):",
+          "//",
+          "//   Collection Variables  →  Folder Pre-request  →  Request Pre-request",
+          "//",
+          "// This allows a single shared test script to serve every endpoint —",
+          "// behaviour is controlled entirely by variable values, not by code changes.",
+          "// Adding a new endpoint = set variables, write no new test logic.",
+          "//",
+          "// Convention:",
+          "//   Scalar values (string, number) → pm.variables.get()",
+          "//   Composite values (array, object) → readJsonVariable()",
+          "",
+          "const expectedStatus      = pm.variables.get(\"expectedStatus\");",
+          "const maxResponseTime     = pm.variables.get(\"maxResponseTime\");",
+          "const expectedContentType = pm.variables.get(\"expectedContentType\");",
+          "const expectedRootType    = pm.variables.get(\"expectedRootType\");",
+          "",
+          "// JSON-encoded validation rules — fallbacks prevent forEach/Object.keys",
+          "// from throwing TypeError when a variable is absent or empty.",
+          "const requiredKeys         = readJsonVariable(\"requiredKeys\", []);",
+          "const enumRules            = readJsonVariable(\"enumRules\", {});",
+          "const nonEmptyStringFields = readJsonVariable(\"nonEmptyStringFields\", []);",
+          "const positiveNumberFields = readJsonVariable(\"positiveNumberFields\", []);",
+          "const booleanFields        = readJsonVariable(\"booleanFields\", []);",
+          "const urlFields            = readJsonVariable(\"urlFields\", []);",
+          "const dateTimeFields       = readJsonVariable(\"dateTimeFields\", []);",
+          "",
+          "// Schema store — single variable holding all JSON Schemas as a keyed object:",
+          "// { \"user.schema\": {...}, \"error.schema\": {...} }",
+          "// Individual requests reference a schema by key, not by storing the full object.",
+          "const schemaStore     = readJsonVariable(\"schema_store\", {});",
+          "const schemaSingleKey = pm.variables.get(\"schemaSingleKey\");",
+          "const schemaListKey   = pm.variables.get(\"schemaListKey\");",
+          "const schemaErrorKey  = pm.variables.get(\"schemaErrorKey\");",
+          "",
+          "/**",
+          " * Resolves a JSON Schema from schema_store (preferred) or a legacy standalone variable.",
+          "",
+          " * Two-source fallback exists for backward compatibility — older collection setups",
+          " * stored each schema in a dedicated variable rather than in a central store.",
+          " ",
+          " * Failure modes:",
+          " *   - Key provided but missing from store → explicit failing test (misconfiguration)",
+          " *   - No key and no legacy variable       → returns null (schema validation skipped)",
+          " ",
+          " * @param {string|null} schemaKey         - Key to look up in schema_store",
+          " * @param {string}      legacyVariableKey - Fallback variable name (legacy support)",
+          " * @returns {Object|null}",
+          " */",
+          "function resolveSchema(schemaKey, legacyVariableKey) {",
+          "  if (schemaKey) {",
+          "    if (schemaStore && schemaStore[schemaKey]) return schemaStore[schemaKey];",
+          "",
+          "    pm.test(`Schema key exists in schema_store: ${schemaKey}`, () => {",
+          "      throw new Error(`Schema key '${schemaKey}' not found in schema_store`);",
+          "    });",
+          "    return null;",
+          "  }",
+          "",
+          "  const raw = pm.variables.get(legacyVariableKey);",
+          "  if (!raw) return null;",
+          "",
+          "  try {",
+          "    return JSON.parse(raw);",
+          "  } catch (e) {",
+          "    pm.test(`Invalid schema JSON in variable: ${legacyVariableKey}`, () => {",
+          "      throw new Error(`Variable ${legacyVariableKey} must contain valid JSON schema`);",
+          "    });",
+          "    return null;",
+          "  }",
+          "}",
+          "",
+          "const schemaSingle = resolveSchema(schemaSingleKey, \"schema_single\");",
+          "const schemaList   = resolveSchema(schemaListKey,   \"schema_list\");",
+          "const schemaError  = resolveSchema(schemaErrorKey,  \"schema_error\");",
+          "",
+          "// Resets a variable to its empty sentinel value.",
+          "// Named clearValue rather than setValue to make the intent explicit at call sites.",
+          "const clearValue = (key, empty) => pm.variables.set(key, empty);",
+          "",
+          "",
+          "// =====================================================",
+          "//  3. CONFIG VALIDATION",
+          "// =====================================================",
+          "//",
+          "// Fail-fast guard — validates required variables before any test logic runs.",
+          "//",
+          "// Without this, missing config produces cryptic runtime errors deep in the script",
+          "// (\"Cannot convert undefined to number\") with no indication of root cause.",
+          "// With this, the failure is immediate and points directly at the missing variable.",
+          "",
+          "const REQUIRED_CONFIG = [\"expectedStatus\", \"maxResponseTime\", \"expectedContentType\"];",
+          "let configValid = true;",
+          "",
+          "REQUIRED_CONFIG.forEach((key) => {",
+          "  const val = pm.variables.get(key);",
+          "  pm.test(`[Config] '${key}' is set and non-empty`, () => {",
+          "    if (!val || String(val).trim() === \"\") {",
+          "      configValid = false;",
+          "      throw new Error(`Required config variable '${key}' is missing or empty. Set it in the folder pre-request script.`);",
+          "    }",
+          "  });",
+          "});",
+          "",
+          "// expectedStatus must be a valid HTTP status code integer (100–599).",
+          "pm.test(\"[Config] 'expectedStatus' is a valid HTTP status code\", () => {",
+          "  const val = Number(pm.variables.get(\"expectedStatus\"));",
+          "  if (isNaN(val) || val < 100 || val > 599) {",
+          "    configValid = false;",
+          "    throw new Error(`'expectedStatus' must be a valid HTTP status code (100–599), got: '${pm.variables.get(\"expectedStatus\")}'`);",
+          "  }",
+          "});",
+          "",
+          "// maxResponseTime must be a positive integer — zero or negative has no meaningful interpretation.",
+          "pm.test(\"[Config] 'maxResponseTime' is a positive number\", () => {",
+          "  const val = Number(pm.variables.get(\"maxResponseTime\"));",
+          "  if (isNaN(val) || val <= 0) {",
+          "    configValid = false;",
+          "    throw new Error(`'maxResponseTime' must be a positive number, got: '${pm.variables.get(\"maxResponseTime\")}'`);",
+          "  }",
+          "});",
+          "",
+          "// Abort early — sections 4–8 are skipped when config is invalid.",
+          "// Cleanup runs here because section 8 will never be reached.",
+          "if (!configValid) {",
+          "  console.error(\"[Contract] Config validation failed — skipping all further checks.\");",
+          "  clearValue(\"expectedRootType\", \"\");",
+          "  clearValue(\"requiredKeys\", \"[]\");",
+          "  clearValue(\"enumRules\", \"{}\");",
+          "  clearValue(\"nonEmptyStringFields\", \"[]\");",
+          "  clearValue(\"positiveNumberFields\", \"[]\");",
+          "  clearValue(\"booleanFields\", \"[]\");",
+          "  clearValue(\"urlFields\", \"[]\");",
+          "  clearValue(\"dateTimeFields\", \"[]\");",
+          "  return;",
+          "}",
+          "",
+          "",
+          "// =====================================================",
+          "//  4. RESPONSE PARSING",
+          "// =====================================================",
+          "//",
+          "// Body is parsed once and shared across all subsequent assertions.",
+          "// Repeated calls to parseBody() would be wasteful and risk inconsistency",
+          "// if the response object were ever mutated between calls.",
+          "",
+          "const jsonData = parseBody(pm.response);",
+          "",
+          "",
+          "// =====================================================",
+          "//  5. BASELINE ASSERTIONS",
+          "// =====================================================",
+          "//",
+          "// Three checks that every well-behaved endpoint must satisfy:",
+          "//   1. Correct HTTP status code",
+          "//   2. Acceptable response time",
+          "//   3. Correct Content-Type header",
+          "//",
+          "// Each assertion is gated on its variable being set — omitting the variable",
+          "// skips that assertion without modifying this script.",
+          "// Example use case: binary responses where Content-Type checking is irrelevant.",
+          "",
+          "if (expectedStatus) {",
+          "  // pm.variables.get() always returns a string — Number() cast is required.",
+          "  pm.test(`Status ${expectedStatus}`, () => {",
+          "    checkStatus(pm.response, Number(expectedStatus));",
+          "  });",
+          "}",
+          "",
+          "if (maxResponseTime) {",
+          "  pm.test(`Response time < ${maxResponseTime}ms`, () => {",
+          "    checkResponseTime(pm.response, Number(maxResponseTime));",
+          "  });",
+          "}",
+          "",
+          "if (expectedContentType) {",
+          "  // .include() rather than .eql() — Content-Type often carries charset suffix:",
+          "  // \"application/json; charset=utf-8\". We match the type, not the full header value.",
+          "  pm.test(`Content-Type includes ${expectedContentType}`, () => {",
+          "    pm.expect(pm.response.headers.get(\"Content-Type\") || \"\")",
+          "      .to.include(expectedContentType);",
+          "  });",
+          "}",
+          "",
+          "",
+          "// =====================================================",
+          "//  6. SCHEMA VALIDATION",
+          "// =====================================================",
+          "//",
+          "// Structural validation — verifies shape and field types against JSON Schema.",
+          "// Complements section 7 (value validation) rather than replacing it.",
+          "//",
+          "// REST APIs typically return one of three response shapes:",
+          "//",
+          "//   A — Array root:   [ {id:1}, {id:2} ]",
+          "//       schemaList describes one item.",
+          "//",
+          "//   B — Single object: { \"id\": 1, \"name\": \"...\" }",
+          "//       schemaSingle describes the object.",
+          "//",
+          "//   C — Paginated:    { \"results\": [...], \"count\": 42 }",
+          "//       Django REST Framework convention — schemaList describes one result item.",
+          "//",
+          "// 4xx/5xx responses are validated against schemaError (different shape from success).",
+          "",
+          "if (pm.response.code >= 200 && pm.response.code < 300) {",
+          "",
+          "  // Shape A — array at root",
+          "  if (Array.isArray(jsonData) && schemaList) {",
+          "    pm.test(\"Schema valid - ARRAY ROOT LIST\", () => {",
+          "      validateSchema({ type: \"array\", items: schemaList });",
+          "    });",
+          "  }",
+          "",
+          "  // Shape B — single object (no results key, not an array)",
+          "  if (jsonData && !Array.isArray(jsonData) && !jsonData.results && schemaSingle) {",
+          "    pm.test(\"Schema valid - SINGLE OBJECT\", () => {",
+          "      validateSchema(schemaSingle);",
+          "    });",
+          "  }",
+          "",
+          "  // Shape C — paginated wrapper with results array",
+          "  // Wrapper keys (count, next, previous) are intentionally not enforced here —",
+          "  // they vary across endpoints and are validated per-request via requiredKeys.",
+          "  if (jsonData && jsonData.results && schemaList) {",
+          "    pm.test(\"Schema valid - LIST\", () => {",
+          "      validateSchema({",
+          "        type: \"object\",",
+          "        properties: {",
+          "          results: { type: \"array\", items: schemaList }",
+          "        }",
+          "      });",
+          "    });",
+          "  }",
+          "}",
+          "",
+          "// >= 400 intentionally covers 5xx as well — server errors also have a defined error schema.",
+          "if (pm.response.code >= 400 && schemaError) {",
+          "  pm.test(\"Schema valid - ERROR\", () => {",
+          "    validateSchema(schemaError);",
+          "  });",
+          "}",
+          "",
+          "",
+          "// =====================================================",
+          "//  7. DATA VALIDATION",
+          "// =====================================================",
+          "//",
+          "// Value-level assertions — enforces business rules on response content.",
+          "// Schema validation (section 6) checks structure; this section checks values.",
+          "//",
+          "// All rules are driven by variables set in pre-request scripts.",
+          "// Adding a field to validate = update the variable, change no test code.",
+          "",
+          "// Root type check — typeof [] === \"object\" in JS, hence the Array.isArray branch.",
+          "if (expectedRootType) {",
+          "  pm.test(`Root type is ${expectedRootType}`, () => {",
+          "    const actualType = Array.isArray(jsonData) ? \"array\" : typeof jsonData;",
+          "    pm.expect(actualType).to.eql(expectedRootType);",
+          "  });",
+          "}",
+          "",
+          "// Key existence — dot notation paths, tests presence only (not value).",
+          "requiredKeys.forEach((key) => {",
+          "  pm.test(`Required key exists: ${key}`, () => {",
+          "    pm.expect(getByPath(jsonData, key)).to.not.equal(undefined);",
+          "  });",
+          "});",
+          "",
+          "// Enum — field value must be one of the allowed set.",
+          "// Format: { \"status\": [\"Alive\", \"Dead\", \"unknown\"] }",
+          "Object.keys(enumRules).forEach((field) => {",
+          "  pm.test(`Enum valid: ${field}`, () => {",
+          "    pm.expect(enumRules[field]).to.include(getByPath(jsonData, field));",
+          "  });",
+          "});",
+          "",
+          "// Non-empty strings — .trim() rejects whitespace-only values.",
+          "nonEmptyStringFields.forEach((field) => {",
+          "  pm.test(`String not empty: ${field}`, () => {",
+          "    const value = getByPath(jsonData, field);",
+          "    pm.expect(value).to.be.a(\"string\");",
+          "    pm.expect(value.trim().length).to.be.above(0);",
+          "  });",
+          "});",
+          "",
+          "// Positive numbers — .above(0) explicitly excludes zero.",
+          "positiveNumberFields.forEach((field) => {",
+          "  pm.test(`Positive number: ${field}`, () => {",
+          "    const value = getByPath(jsonData, field);",
+          "    pm.expect(value).to.be.a(\"number\");",
+          "    pm.expect(value).to.be.above(0);",
+          "  });",
+          "});",
+          "",
+          "// Booleans — typeof check catches string \"true\"/\"false\" masquerading as booleans.",
+          "booleanFields.forEach((field) => {",
+          "  pm.test(`Boolean field: ${field}`, () => {",
+          "    pm.expect(typeof getByPath(jsonData, field)).to.eql(\"boolean\");",
+          "  });",
+          "});",
+          "",
+          "// URLs — protocol check only; full RFC validation would be excessive for API tests.",
+          "urlFields.forEach((field) => {",
+          "  pm.test(`Valid URL: ${field}`, () => {",
+          "    const value = getByPath(jsonData, field);",
+          "    pm.expect(value).to.be.a(\"string\");",
+          "    pm.expect(/^https?:\\/\\//.test(value)).to.eql(true);",
+          "  });",
+          "});",
+          "",
+          "// Datetime strings — Date.parse() accepts ISO 8601, RFC 2822 and other JS-parseable formats.",
+          "// Returns NaN for invalid input — isNaN check confirms successful parse.",
+          "dateTimeFields.forEach((field) => {",
+          "  pm.test(`Valid datetime: ${field}`, () => {",
+          "    const value = getByPath(jsonData, field);",
+          "    pm.expect(value).to.be.a(\"string\");",
+          "    pm.expect(isNaN(Date.parse(value))).to.eql(false);",
+          "  });",
+          "});",
+          "",
+          "",
+          "// =====================================================",
+          "//   8. CLEANUP",
+          "// =====================================================",
+          "//",
+          "// Postman variables persist across requests within a collection run.",
+          "// Without cleanup, config set for request A leaks into request B —",
+          "// causing false failures (fields asserted that don't exist) or",
+          "// false passes (fields happen to exist but were never intended to be checked).",
+          "//",
+          "// Sentinel values:",
+          "//   \"\"   → scalar — pm.variables.get() returns empty string, guards skip the block",
+          "//   \"[]\" → array  — readJsonVariable() parses to [], forEach iterates zero times",
+          "//   \"{}\" → object — readJsonVariable() parses to {}, Object.keys returns []",
+          "",
+          "clearValue(\"expectedStatus\",         \"\");",
+          "clearValue(\"maxResponseTime\",        \"\");",
+          "clearValue(\"expectedContentType\",    \"\");",
+          "clearValue(\"expectedRootType\",       \"\");",
+          "clearValue(\"requiredKeys\",           \"[]\");",
+          "clearValue(\"enumRules\",              \"{}\");",
+          "clearValue(\"nonEmptyStringFields\",   \"[]\");",
+          "clearValue(\"positiveNumberFields\",   \"[]\");",
+          "clearValue(\"booleanFields\",          \"[]\");",
+          "clearValue(\"urlFields\",              \"[]\");",
+          "clearValue(\"dateTimeFields\",         \"[]\");"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "schemaErrorKey",
+      "value": ""
+    },
+    {
+      "key": "schema_store",
+      "value": ""
+    }
+  ]
+}
